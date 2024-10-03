@@ -58,4 +58,25 @@ class ReportViewSet(CreateModelMixin,GenericViewSet):
     queryset=Report.objects.all()
     serializer_class=ReportSerializer
 
+class PasswordResetViewSet(APIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = PasswordResetRequestSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.create(serializer.validated_data)
+        return Response({"message": "Password reset link has been sent."}, status=status.HTTP_200_OK)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, uidb64, token):
+        serializer = PasswordResetConfirmSerializer(data=request.data, context={'uidb64': uidb64, 'token': token})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+
+
     
